@@ -40,26 +40,10 @@ class GoogleAuthenticationFilterTest {
     @BeforeEach
     void setupMockServer() throws Exception {
         UserStub userB = new UserStub("b", "b_access_token", "b@b.com", "b", "b_avatar_url");
-        UserStub userC = new UserStub("c", "c_access_token", "c@c.com", "c", "c_avatar_url");
-
         setupUserStub(userB);
+
+        UserStub userC = new UserStub("c", "c_access_token", "c@c.com", "c", "c_avatar_url");
         setupUserStub(userC);
-    }
-
-    @ParameterizedTest
-    @MethodSource("userProvider")
-    void authenticationFilter(UserStub user) throws Exception {
-        String requestUri = "/login/oauth2/code/google?code=" + user.code;
-
-        mockMvc.perform(MockMvcRequestBuilders.get(requestUri))
-                .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/"));
-
-        Member savedMember = memberRepository.findByEmail(user.email).get();
-        assertThat(savedMember).isNotNull();
-        assertThat(savedMember.getEmail()).isEqualTo(user.email);
-        assertThat(savedMember.getName()).isEqualTo(user.name);
     }
 
     @ParameterizedTest
@@ -84,7 +68,6 @@ class GoogleAuthenticationFilterTest {
         assertThat(savedMember.getName()).isEqualTo(user.name);
     }
 
-
     private void setupUserStub(UserStub user) throws Exception {
         Map<String, String> accessTokenResponseBody = new HashMap<>();
         accessTokenResponseBody.put("access_token", user.accessToken);
@@ -92,6 +75,7 @@ class GoogleAuthenticationFilterTest {
         String accessTokenJsonResponse = new ObjectMapper().writeValueAsString(accessTokenResponseBody);
 
         stubFor(post(urlEqualTo("/o/oauth2/token"))
+                .withRequestBody(containing("code=" + user.code))
                 .willReturn(aResponse()
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                         .withBody(accessTokenJsonResponse)));
@@ -103,6 +87,7 @@ class GoogleAuthenticationFilterTest {
         String profileJsonResponse = new ObjectMapper().writeValueAsString(userProfile);
 
         stubFor(get(urlEqualTo("/oauth2/v1/userinfo"))
+                .withHeader("Authorization", equalTo("Bearer " + user.accessToken))
                 .willReturn(aResponse()
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                         .withBody(profileJsonResponse)));

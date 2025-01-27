@@ -40,26 +40,10 @@ class GithubAuthenticationFilterTest {
     @BeforeEach
     void setupMockServer() throws Exception {
         UserStub userB = new UserStub("b", "b_access_token", "b@b.com", "b", "b_avatar_url");
-        UserStub userC = new UserStub("c", "c_access_token", "c@c.com", "c", "c_avatar_url");
-
         setupUserStub(userB);
+
+        UserStub userC = new UserStub("c", "c_access_token", "c@c.com", "c", "c_avatar_url");
         setupUserStub(userC);
-    }
-
-    @ParameterizedTest
-    @MethodSource("userProvider")
-    void authenticationFilter(UserStub user) throws Exception {
-        String requestUri = "/login/oauth2/code/github?code=" + user.code;
-
-        mockMvc.perform(MockMvcRequestBuilders.get(requestUri))
-                .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/"));
-
-        Member savedMember = memberRepository.findByEmail(user.email).get();
-        assertThat(savedMember).isNotNull();
-        assertThat(savedMember.getEmail()).isEqualTo(user.email);
-        assertThat(savedMember.getName()).isEqualTo(user.name);
     }
 
     @ParameterizedTest
@@ -91,6 +75,7 @@ class GithubAuthenticationFilterTest {
         String accessTokenJsonResponse = new ObjectMapper().writeValueAsString(accessTokenResponseBody);
 
         stubFor(post(urlEqualTo("/login/oauth/access_token"))
+                .withRequestBody(containing("code=" + user.code))
                 .willReturn(aResponse()
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                         .withBody(accessTokenJsonResponse)));
@@ -102,6 +87,7 @@ class GithubAuthenticationFilterTest {
         String profileJsonResponse = new ObjectMapper().writeValueAsString(userProfile);
 
         stubFor(get(urlEqualTo("/user"))
+                .withHeader("Authorization", equalTo("Bearer " + user.accessToken))
                 .willReturn(aResponse()
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                         .withBody(profileJsonResponse)));
