@@ -67,4 +67,9 @@ public class HttpSecurity {
         customizer.customize(getOrApply(new FormLoginConfigurer()));
         return this;
     }
+
+    public HttpSecurity httpBasic(final Customizer<HttpBasicConfigurer> customizer) {
+        customizer.customize(getOrApply(new HttpBasicConfigurer()));
+        return this;
+    }
 }

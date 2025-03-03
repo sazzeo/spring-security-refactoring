@@ -1,5 +1,7 @@
 package nextstep.app;
 
+import nextstep.autoconfigure.Customizer;
+import nextstep.autoconfigure.HttpSecurity;
 import nextstep.oauth2.OAuth2ClientProperties;
 import nextstep.oauth2.authentication.OAuth2LoginAuthenticationProvider;
 import nextstep.oauth2.registration.ClientRegistration;
@@ -106,6 +108,15 @@ public class SecurityConfig {
         return new ClientRegistrationRepository(registrations);
     }
 
+    @Bean
+    public SecurityFilterChain securityFilterChain2() {
+        var http = new HttpSecurity(authenticationManager());
+        return http
+                .formLogin(formLogin -> formLogin.loginPage("/login").permitAll())
+                .httpBasic(Customizer.withDefaults())
+                .build();
+    }
+
     private static Map<String, ClientRegistration> getClientRegistrations(OAuth2ClientProperties properties) {
         Map<String, ClientRegistration> clientRegistrations = new HashMap<>();
         properties.getRegistration().forEach((key, value) -> clientRegistrations.put(key,
@@ -117,5 +128,6 @@ public class SecurityConfig {
                                                             OAuth2ClientProperties.Registration registration, OAuth2ClientProperties.Provider provider) {
         return new ClientRegistration(registrationId, registration.getClientId(), registration.getClientSecret(), registration.getRedirectUri(), registration.getScope(), provider.getAuthorizationUri(), provider.getTokenUri(), provider.getUserInfoUri(), provider.getUserNameAttributeName());
     }
+
 }
 
