@@ -80,29 +80,20 @@ public class SecurityConfig {
                 new OAuth2LoginAuthenticationProvider(oAuth2UserService)));
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain() {
-        return new DefaultSecurityFilterChain(
-                List.of(
-                        new SecurityContextHolderFilter(),
-                        new UsernamePasswordAuthenticationFilter(authenticationManager()),
-                        new BasicAuthenticationFilter(authenticationManager()),
-                        new OAuth2AuthorizationRequestRedirectFilter(clientRegistrationRepository()),
-                        new OAuth2LoginAuthenticationFilter(clientRegistrationRepository(), new OAuth2AuthorizedClientRepository(), authenticationManager()),
-                        new AuthorizationFilter(requestAuthorizationManager())
-                )
-        );
-    }
-
-    @Bean
-    public RequestMatcherDelegatingAuthorizationManager requestAuthorizationManager() {
-        List<RequestMatcherEntry<AuthorizationManager<HttpServletRequest>>> mappings = new ArrayList<>();
-        mappings.add(new RequestMatcherEntry<>(new MvcRequestMatcher(HttpMethod.GET, "/members"), new AuthorityAuthorizationManager<>(roleHierarchy(), "ADMIN")));
-        mappings.add(new RequestMatcherEntry<>(new MvcRequestMatcher(HttpMethod.GET, "/members/me"), new AuthorityAuthorizationManager<>(roleHierarchy(), "USER")));
-        mappings.add(new RequestMatcherEntry<>(AnyRequestMatcher.INSTANCE, new PermitAllAuthorizationManager<>()));
-        return new RequestMatcherDelegatingAuthorizationManager(mappings);
-    }
-
+//    @Bean
+//    public SecurityFilterChain securityFilterChain() {
+//        return new DefaultSecurityFilterChain(
+//                List.of(
+//                        new SecurityContextHolderFilter(),
+//                        new UsernamePasswordAuthenticationFilter(authenticationManager()),
+//                        new BasicAuthenticationFilter(authenticationManager()),
+//                        new OAuth2AuthorizationRequestRedirectFilter(clientRegistrationRepository()),
+//                        new OAuth2LoginAuthenticationFilter(clientRegistrationRepository(), new OAuth2AuthorizedClientRepository(), authenticationManager()),
+//                        new AuthorizationFilter(requestAuthorizationManager())
+//                )
+//        );
+//    }
+//
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
         Map<String, ClientRegistration> registrations = getClientRegistrations(oAuth2ClientProperties);
@@ -110,7 +101,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain2() {
+    public SecurityFilterChain securityFilterChain() {
         var http = new HttpSecurity(authenticationManager());
         return http
                 .authorizeHttpRequests(authorize -> authorize

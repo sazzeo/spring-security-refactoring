@@ -4,6 +4,7 @@ import jakarta.servlet.Filter;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
+import nextstep.security.context.SecurityContextHolderFilter;
 
 import java.util.*;
 
@@ -13,6 +14,7 @@ public class HttpSecurity {
     private final List<Filter> filters = new ArrayList<>();
     private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
 
+    private final FilterOrderRegistration filterOrderRegistration = new FilterOrderRegistration();
 
     public HttpSecurity(final AuthenticationManager authenticationManager) {
         this.setSharedObject(AuthenticationManager.class, authenticationManager);
@@ -21,8 +23,10 @@ public class HttpSecurity {
     public SecurityFilterChain build() {
         init();
         configure();
+        sortFilter();
         return new DefaultSecurityFilterChain(filters);
     }
+
 
     public void addFilter(Filter filter) {
         filters.add(filter);
@@ -34,7 +38,12 @@ public class HttpSecurity {
         }
     }
 
+    private void sortFilter() {
+        this.filters.sort((filter1, filter2) -> filterOrderRegistration.getOrder(filter1) - filterOrderRegistration.getOrder(filter2));
+    }
+
     private void configure() {
+        filters.add(new SecurityContextHolderFilter());
         for (SecurityConfigurer configurer : this.configurers.values()) {
             configurer.configure(this);
         }
