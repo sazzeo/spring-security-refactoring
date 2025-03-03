@@ -1,5 +1,6 @@
 package nextstep.app;
 
+import jakarta.servlet.http.HttpServletRequest;
 import nextstep.autoconfigure.Customizer;
 import nextstep.autoconfigure.HttpSecurity;
 import nextstep.oauth2.OAuth2ClientProperties;
@@ -95,10 +96,10 @@ public class SecurityConfig {
 
     @Bean
     public RequestMatcherDelegatingAuthorizationManager requestAuthorizationManager() {
-        List<RequestMatcherEntry<AuthorizationManager>> mappings = new ArrayList<>();
-        mappings.add(new RequestMatcherEntry<>(new MvcRequestMatcher(HttpMethod.GET, "/members"), new AuthorityAuthorizationManager(roleHierarchy(), "ADMIN")));
-        mappings.add(new RequestMatcherEntry<>(new MvcRequestMatcher(HttpMethod.GET, "/members/me"), new AuthorityAuthorizationManager(roleHierarchy(), "USER")));
-        mappings.add(new RequestMatcherEntry<>(AnyRequestMatcher.INSTANCE, new PermitAllAuthorizationManager<Void>()));
+        List<RequestMatcherEntry<AuthorizationManager<HttpServletRequest>>> mappings = new ArrayList<>();
+        mappings.add(new RequestMatcherEntry<>(new MvcRequestMatcher(HttpMethod.GET, "/members"), new AuthorityAuthorizationManager<>(roleHierarchy(), "ADMIN")));
+        mappings.add(new RequestMatcherEntry<>(new MvcRequestMatcher(HttpMethod.GET, "/members/me"), new AuthorityAuthorizationManager<>(roleHierarchy(), "USER")));
+        mappings.add(new RequestMatcherEntry<>(AnyRequestMatcher.INSTANCE, new PermitAllAuthorizationManager<>()));
         return new RequestMatcherDelegatingAuthorizationManager(mappings);
     }
 
@@ -112,6 +113,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain2() {
         var http = new HttpSecurity(authenticationManager());
         return http
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/members").hasAuthority("ADMIN")
+                        .requestMatchers("/members/me").authenticated()
+                        .anyRequest().permitAll()
+                )
                 .formLogin(formLogin -> formLogin.loginPage("/login").permitAll())
                 .httpBasic(Customizer.withDefaults())
                 .build();

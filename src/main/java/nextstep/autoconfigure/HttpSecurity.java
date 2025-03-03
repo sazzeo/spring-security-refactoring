@@ -72,4 +72,9 @@ public class HttpSecurity {
         customizer.customize(getOrApply(new HttpBasicConfigurer()));
         return this;
     }
+
+    public HttpSecurity authorizeHttpRequests(final Customizer<AuthorizeHttpRequestsConfigurer> customizer) {
+        customizer.customize(getOrApply(new AuthorizeHttpRequestsConfigurer()));
+        return this;
+    }
 }
