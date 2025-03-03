@@ -1,13 +1,19 @@
 package nextstep.autoconfigure;
 
+import nextstep.security.access.MvcRequestMatcher;
+import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 
 public class FormLoginConfigurer implements SecurityConfigurer {
 
-    private UsernamePasswordAuthenticationFilter filter;
+    private String loginUrl = "/login";
+
+    private boolean permitAll = false;
+
+    private boolean disable = false;
 
     public FormLoginConfigurer() {
-
     }
 
     @Override
@@ -17,16 +23,30 @@ public class FormLoginConfigurer implements SecurityConfigurer {
 
     @Override
     public void configure(final HttpSecurity httpSecurity) {
-
-        var filter = new UsernamePasswordAuthenticationFilter();
-
-
-
-
+        if (disable) {
+            return;
+        }
+        UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter(httpSecurity.getSharedObject(AuthenticationManager.class));
+        if (permitAll) {
+            //TODO
+        }
+        filter.setRequestMatcher(new MvcRequestMatcher(HttpMethod.POST, loginUrl));
         httpSecurity.addFilter(filter);
     }
 
-    public Object loginPage(final String loginUrl) {
-
+    public FormLoginConfigurer loginPage(final String loginUrl) {
+        this.loginUrl = loginUrl;
+        return this;
     }
+
+    public FormLoginConfigurer permitAll() {
+        this.permitAll = true;
+        return this;
+    }
+
+    public FormLoginConfigurer disable() {
+        this.disable = true;
+        return this;
+    }
+
 }

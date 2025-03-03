@@ -1,17 +1,22 @@
 package nextstep.autoconfigure;
 
 import jakarta.servlet.Filter;
+import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class HttpSecurity {
 
     private final LinkedHashMap<Class<? extends SecurityConfigurer>, SecurityConfigurer> configurers = new LinkedHashMap<>();
-    private List<Filter> filters = new ArrayList<>();
+    private final List<Filter> filters = new ArrayList<>();
+    private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
+
+
+    public HttpSecurity(final AuthenticationManager authenticationManager) {
+        this.setSharedObject(AuthenticationManager.class, authenticationManager);
+    }
 
     public SecurityFilterChain build() {
         init();
@@ -35,9 +40,23 @@ public class HttpSecurity {
         }
     }
 
-    private SecurityConfigurer getOrApply(SecurityConfigurer configurer) {
+    private <T extends SecurityConfigurer> T getOrApply(T configurer) {
+        var clazz = configurer.getClass();
+        var existedConfigured = this.configurers.get(clazz);
+        if (existedConfigured != null) {
+            return (T) existedConfigured;
+        }
         this.configurers.put(clazz, configurer);
         return configurer;
+    }
+
+    public <T> T getSharedObject(final Class<T> clazz) {
+        Object obj = sharedObjects.get(clazz);
+        return (T) obj;
+    }
+
+    public <T> void setSharedObject(final Class<T> clazz, T object) {
+        sharedObjects.put(clazz, object);
     }
 
     public HttpSecurity csrf() {
@@ -45,10 +64,7 @@ public class HttpSecurity {
     }
 
     public HttpSecurity formLogin(final Customizer<FormLoginConfigurer> customizer) {
-        FormLoginConfigurer formLoginConfigurer = new FormLoginConfigurer();
-        formLoginConfigurer.init(this);
-        customizer.customize(formLoginConfigurer);
-        formLoginConfigurer.configure(this);
+        customizer.customize(getOrApply(new FormLoginConfigurer()));
         return this;
     }
 }
