@@ -17,9 +17,12 @@ public class HttpSecurity {
 
     private final FilterOrderRegistration filterOrderRegistration = new FilterOrderRegistration();
 
+    private final AuthorizeHttpRequestsConfigurer authorizeHttpRequestsConfigurer = new AuthorizeHttpRequestsConfigurer();
+
     public HttpSecurity(final AuthenticationManager authenticationManager, final ClientRegistrationRepository clientRegistrationRepository) {
         this.setSharedObject(AuthenticationManager.class, authenticationManager);
         this.setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
+        this.setSharedObject(AuthorizeHttpRequestsConfigurer.class, authorizeHttpRequestsConfigurer);
     }
 
     public SecurityFilterChain build() {
@@ -85,7 +88,7 @@ public class HttpSecurity {
     }
 
     public HttpSecurity authorizeHttpRequests(final Customizer<AuthorizeHttpRequestsConfigurer> customizer) {
-        customizer.customize(getOrApply(new AuthorizeHttpRequestsConfigurer()));
+        customizer.customize(getOrApply(authorizeHttpRequestsConfigurer));
         return this;
     }
 

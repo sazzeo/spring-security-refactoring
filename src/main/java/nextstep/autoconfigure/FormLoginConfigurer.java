@@ -28,7 +28,8 @@ public class FormLoginConfigurer implements SecurityConfigurer {
         }
         var filter = new UsernamePasswordAuthenticationFilter(httpSecurity.getSharedObject(AuthenticationManager.class));
         if (permitAll) {
-            //TODO
+            var authorizeHttpRequestsConfigurer = httpSecurity.getSharedObject(AuthorizeHttpRequestsConfigurer.class);
+            authorizeHttpRequestsConfigurer.requestMatchers(loginUrl).permitAll();
         }
         filter.setRequestMatcher(new MvcRequestMatcher(HttpMethod.POST, loginUrl));
         httpSecurity.addFilter(filter);
