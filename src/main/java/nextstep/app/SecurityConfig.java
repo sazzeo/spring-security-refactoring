@@ -51,15 +51,6 @@ public class SecurityConfig {
         this.oAuth2ClientProperties = oAuth2ClientProperties;
     }
 
-    @Bean
-    public DelegatingFilterProxy delegatingFilterProxy() {
-        return new DelegatingFilterProxy(filterChainProxy(List.of(securityFilterChain())));
-    }
-
-    @Bean
-    public FilterChainProxy filterChainProxy(List<SecurityFilterChain> securityFilterChains) {
-        return new FilterChainProxy(securityFilterChains);
-    }
 
     @Bean
     public SecuredMethodInterceptor securedMethodInterceptor() {
@@ -80,7 +71,7 @@ public class SecurityConfig {
                 new OAuth2LoginAuthenticationProvider(oAuth2UserService)));
     }
 
-//    @Bean
+    //    @Bean
 //    public SecurityFilterChain securityFilterChain() {
 //        return new DefaultSecurityFilterChain(
 //                List.of(
@@ -100,19 +91,6 @@ public class SecurityConfig {
         return new ClientRegistrationRepository(registrations);
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain() {
-        var http = new HttpSecurity(authenticationManager());
-        return http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/members").hasAuthority("ADMIN")
-                        .requestMatchers("/members/me").authenticated()
-                        .anyRequest().permitAll()
-                )
-                .formLogin(formLogin -> formLogin.loginPage("/login").permitAll())
-                .httpBasic(Customizer.withDefaults())
-                .build();
-    }
 
     private static Map<String, ClientRegistration> getClientRegistrations(OAuth2ClientProperties properties) {
         Map<String, ClientRegistration> clientRegistrations = new HashMap<>();
