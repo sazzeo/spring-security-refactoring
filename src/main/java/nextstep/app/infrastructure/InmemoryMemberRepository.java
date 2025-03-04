@@ -26,7 +26,7 @@ public class InmemoryMemberRepository implements MemberRepository {
 
     @Override
     public void deleteAll() {
-        members.keySet().forEach(members::remove);
+        members.clear();
     }
 
     @Override
