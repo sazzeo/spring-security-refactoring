@@ -21,11 +21,9 @@ import java.util.Map;
 public class DefaultSecurityConfig {
 
     private final AuthenticationManager authenticationManager;
-    private final OAuth2ClientProperties properties;
 
-    public DefaultSecurityConfig(final AuthenticationManager authenticationManager, final OAuth2ClientProperties properties) {
+    public DefaultSecurityConfig(final AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
-        this.properties = properties;
     }
 
     @Bean
@@ -37,15 +35,9 @@ public class DefaultSecurityConfig {
     @Order(SecurityProperties.BASIC_AUTH_ORDER)
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) {
         return http
-                .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/members").hasAuthority("ADMIN")
-                                .requestMatchers("/search").hasAuthority("ADMIN")
-                                .requestMatchers("/members/me").authenticated()
-                                .anyRequest().permitAll())
                 .formLogin(formLogin ->
                         formLogin.loginPage("/login").permitAll())
                 .httpBasic(Customizer.withDefaults())
-                .oAuth2Login(Customizer.withDefaults())
                 .build();
     }
 

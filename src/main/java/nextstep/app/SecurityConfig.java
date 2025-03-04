@@ -1,5 +1,7 @@
 package nextstep.app;
 
+import nextstep.autoconfigure.Customizer;
+import nextstep.autoconfigure.HttpSecurity;
 import nextstep.oauth2.OAuth2ClientProperties;
 import nextstep.oauth2.authentication.OAuth2LoginAuthenticationProvider;
 import nextstep.oauth2.registration.ClientRegistration;
@@ -11,11 +13,14 @@ import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.authentication.DaoAuthenticationProvider;
 import nextstep.security.authentication.ProviderManager;
 import nextstep.security.authorization.SecuredMethodInterceptor;
+import nextstep.security.config.SecurityFilterChain;
 import nextstep.security.userdetails.UserDetailsService;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.core.annotation.Order;
 
 import java.util.HashMap;
 import java.util.List;
@@ -57,37 +62,19 @@ public class SecurityConfig {
                 new OAuth2LoginAuthenticationProvider(oAuth2UserService)));
     }
 
-    //    @Bean
-//    public SecurityFilterChain securityFilterChain() {
-//        return new DefaultSecurityFilterChain(
-//                List.of(
-//                        new SecurityContextHolderFilter(),
-//                        new UsernamePasswordAuthenticationFilter(authenticationManager()),
-//                        new BasicAuthenticationFilter(authenticationManager()),
-//                        new OAuth2AuthorizationRequestRedirectFilter(clientRegistrationRepository()),
-//                        new OAuth2LoginAuthenticationFilter(clientRegistrationRepository(), new OAuth2AuthorizedClientRepository(), authenticationManager()),
-//                        new AuthorizationFilter(requestAuthorizationManager())
-//                )
-//        );
-//    }
-//
-//    @Bean
-    public ClientRegistrationRepository clientRegistrationRepository() {
-        Map<String, ClientRegistration> registrations = getClientRegistrations(oAuth2ClientProperties);
-        return new ClientRegistrationRepository(registrations);
-    }
-
-
-    private static Map<String, ClientRegistration> getClientRegistrations(OAuth2ClientProperties properties) {
-        Map<String, ClientRegistration> clientRegistrations = new HashMap<>();
-        properties.getRegistration().forEach((key, value) -> clientRegistrations.put(key,
-                getClientRegistration(key, value, properties.getProvider().get(key))));
-        return clientRegistrations;
-    }
-
-    private static ClientRegistration getClientRegistration(String registrationId,
-                                                            OAuth2ClientProperties.Registration registration, OAuth2ClientProperties.Provider provider) {
-        return new ClientRegistration(registrationId, registration.getClientId(), registration.getClientSecret(), registration.getRedirectUri(), registration.getScope(), provider.getAuthorizationUri(), provider.getTokenUri(), provider.getUserInfoUri(), provider.getUserNameAttributeName());
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        return http
+                .authorizeHttpRequests(authorize ->
+                        authorize.requestMatchers("/members").hasAuthority("ADMIN")
+                                .requestMatchers("/search").hasAuthority("ADMIN")
+                                .requestMatchers("/members/me").authenticated()
+                                .anyRequest().permitAll())
+                .formLogin(formLogin ->
+                        formLogin.loginPage("/login").permitAll())
+                .httpBasic(Customizer.withDefaults())
+                .oAuth2Login(Customizer.withDefaults())
+                .build();
     }
 
 }
