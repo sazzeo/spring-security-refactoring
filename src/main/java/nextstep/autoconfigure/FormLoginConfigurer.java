@@ -26,7 +26,7 @@ public class FormLoginConfigurer implements SecurityConfigurer {
         if (disable) {
             return;
         }
-        UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter(httpSecurity.getSharedObject(AuthenticationManager.class));
+        var filter = new UsernamePasswordAuthenticationFilter(httpSecurity.getSharedObject(AuthenticationManager.class));
         if (permitAll) {
             //TODO
         }

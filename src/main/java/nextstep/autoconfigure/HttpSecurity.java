@@ -1,6 +1,7 @@
 package nextstep.autoconfigure;
 
 import jakarta.servlet.Filter;
+import nextstep.oauth2.registration.ClientRegistrationRepository;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
@@ -16,8 +17,9 @@ public class HttpSecurity {
 
     private final FilterOrderRegistration filterOrderRegistration = new FilterOrderRegistration();
 
-    public HttpSecurity(final AuthenticationManager authenticationManager) {
+    public HttpSecurity(final AuthenticationManager authenticationManager, final ClientRegistrationRepository clientRegistrationRepository) {
         this.setSharedObject(AuthenticationManager.class, authenticationManager);
+        this.setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
     }
 
     public SecurityFilterChain build() {
@@ -84,6 +86,11 @@ public class HttpSecurity {
 
     public HttpSecurity authorizeHttpRequests(final Customizer<AuthorizeHttpRequestsConfigurer> customizer) {
         customizer.customize(getOrApply(new AuthorizeHttpRequestsConfigurer()));
+        return this;
+    }
+
+    public HttpSecurity oAuth2Login(final Customizer<OAuth2LoginConfigurer> customizer) {
+        customizer.customize(getOrApply(new OAuth2LoginConfigurer()));
         return this;
     }
 }
