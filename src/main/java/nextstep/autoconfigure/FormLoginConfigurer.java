@@ -1,11 +1,14 @@
 package nextstep.autoconfigure;
 
 import nextstep.security.access.MvcRequestMatcher;
+import nextstep.security.access.OrRequestMatcher;
 import nextstep.security.access.PathRequestMatcher;
 import nextstep.security.access.RequestMatcher;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.http.HttpMethod;
+
+import java.util.List;
 
 public class FormLoginConfigurer extends AbstractFilterConfigurer<FormLoginConfigurer> {
 
@@ -29,7 +32,10 @@ public class FormLoginConfigurer extends AbstractFilterConfigurer<FormLoginConfi
 
     @Override
     protected RequestMatcher getRequestMatcher() {
-        return new PathRequestMatcher(loginUrl);
+        return new OrRequestMatcher(
+                List.of(new MvcRequestMatcher(HttpMethod.GET, loginUrl),
+                        new MvcRequestMatcher(HttpMethod.POST, loginUrl)
+                ));
     }
 
     public FormLoginConfigurer loginPage(final String loginUrl) {
