@@ -100,7 +100,8 @@ public class HttpSecurity {
         sharedObjects.put(clazz, object);
     }
 
-    public HttpSecurity csrf() {
+    public HttpSecurity csrf(final Customizer<CsrfConfigurer> customizer) {
+        customizer.customize(getOrApply(new CsrfConfigurer()));
         return this;
     }
 

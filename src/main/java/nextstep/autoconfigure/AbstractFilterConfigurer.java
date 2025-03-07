@@ -1,5 +1,6 @@
 package nextstep.autoconfigure;
 
+import jakarta.annotation.Nullable;
 import nextstep.security.access.RequestMatcher;
 
 public abstract class AbstractFilterConfigurer<T extends AbstractFilterConfigurer<T>> implements SecurityConfigurer {
@@ -29,6 +30,7 @@ public abstract class AbstractFilterConfigurer<T extends AbstractFilterConfigure
 
     protected abstract void doConfigure(final HttpSecurity httpSecurity);
 
+    @Nullable
     protected abstract RequestMatcher getRequestMatcher();
 
     public T permitAll() {
