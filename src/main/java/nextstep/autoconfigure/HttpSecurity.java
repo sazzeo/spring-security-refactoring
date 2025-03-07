@@ -1,18 +1,22 @@
 package nextstep.autoconfigure;
 
-import jakarta.servlet.Filter;
+import jakarta.servlet.*;
 import nextstep.oauth2.registration.ClientRegistrationRepository;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
 import nextstep.security.context.SecurityContextHolderFilter;
+import nextstep.security.csrf.CsrfFilter;
+import org.springframework.core.Ordered;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HttpSecurity {
 
     private final LinkedHashMap<Class<? extends SecurityConfigurer>, SecurityConfigurer> configurers = new LinkedHashMap<>();
-    private final List<Filter> filters = new ArrayList<>();
+    private final List<OrderedFilter> filters = new ArrayList<>();
     private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
 
     private final FilterOrderRegistration filterOrderRegistration = new FilterOrderRegistration();
@@ -28,13 +32,40 @@ public class HttpSecurity {
     public SecurityFilterChain build() {
         init();
         configure();
-        sortFilter();
-        return new DefaultSecurityFilterChain(filters);
+        filters.sort(Comparator.comparingInt(OrderedFilter::getOrder));
+        return new DefaultSecurityFilterChain(
+                filters.stream()
+                        .map(OrderedFilter::getFilter)
+                        .collect(Collectors.toList()));
+    }
+
+    public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
+        return addFilterAtOffsetOf(filter, 1, afterFilter);
+    }
+
+    public HttpSecurity addFilterBefore(Filter filter, Class<? extends Filter> beforeFilter) {
+        return addFilterAtOffsetOf(filter, -1, beforeFilter);
+    }
+
+    public void addFilter(Filter filter) {
+        int order = getFilterOrder(filter.getClass());
+        filters.add(new OrderedFilter(filter, order));
     }
 
 
-    public void addFilter(Filter filter) {
-        filters.add(filter);
+    private HttpSecurity addFilterAtOffsetOf(Filter filter, int offset, Class<? extends Filter> registeredFilter) {
+        int order = getFilterOrder(registeredFilter) + offset;
+        this.filters.add(new OrderedFilter(filter, order));
+        this.filterOrderRegistration.put(filter, order);
+        return this;
+    }
+
+    private int getFilterOrder(Class<? extends Filter> clazz) {
+        var order = filterOrderRegistration.getOrder(clazz);
+        if (order == null) {
+            throw new IllegalArgumentException("filter 순서에 등록되지 않았습니다. addFilterBefore 혹은 addFilterAfter를 호출하세요.");
+        }
+        return order;
     }
 
     private void init() {
@@ -43,12 +74,8 @@ public class HttpSecurity {
         }
     }
 
-    private void sortFilter() {
-        this.filters.sort((filter1, filter2) -> filterOrderRegistration.getOrder(filter1) - filterOrderRegistration.getOrder(filter2));
-    }
-
     private void configure() {
-        filters.add(new SecurityContextHolderFilter());
+        addFilter(new SecurityContextHolderFilter());
         for (SecurityConfigurer configurer : this.configurers.values()) {
             configurer.configure(this);
         }
@@ -96,4 +123,31 @@ public class HttpSecurity {
         customizer.customize(getOrApply(new OAuth2LoginConfigurer()));
         return this;
     }
+
+    private static final class OrderedFilter implements Filter {
+
+        private final Filter filter;
+
+        private final int order;
+
+        private OrderedFilter(Filter filter, int order) {
+            this.filter = filter;
+            this.order = order;
+        }
+
+        @Override
+        public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+                throws IOException, ServletException {
+            this.filter.doFilter(servletRequest, servletResponse, filterChain);
+        }
+
+        public int getOrder() {
+            return this.order;
+        }
+
+        public Filter getFilter() {
+            return filter;
+        }
+    }
+
 }

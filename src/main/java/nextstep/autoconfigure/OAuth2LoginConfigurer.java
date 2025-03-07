@@ -22,5 +22,4 @@ public class OAuth2LoginConfigurer implements SecurityConfigurer {
         httpSecurity.addFilter(filter);
     }
 
-
 }

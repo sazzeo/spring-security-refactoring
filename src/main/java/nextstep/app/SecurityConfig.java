@@ -4,8 +4,6 @@ import nextstep.autoconfigure.Customizer;
 import nextstep.autoconfigure.HttpSecurity;
 import nextstep.oauth2.OAuth2ClientProperties;
 import nextstep.oauth2.authentication.OAuth2LoginAuthenticationProvider;
-import nextstep.oauth2.registration.ClientRegistration;
-import nextstep.oauth2.registration.ClientRegistrationRepository;
 import nextstep.oauth2.userinfo.OAuth2UserService;
 import nextstep.security.access.hierarchicalroles.RoleHierarchy;
 import nextstep.security.access.hierarchicalroles.RoleHierarchyImpl;
@@ -14,17 +12,16 @@ import nextstep.security.authentication.DaoAuthenticationProvider;
 import nextstep.security.authentication.ProviderManager;
 import nextstep.security.authorization.SecuredMethodInterceptor;
 import nextstep.security.config.SecurityFilterChain;
+import nextstep.security.context.SecurityContextHolderFilter;
+import nextstep.security.csrf.CsrfFilter;
+import nextstep.security.csrf.HttpSessionCsrfTokenRepository;
 import nextstep.security.userdetails.UserDetailsService;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.core.annotation.Order;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Configuration
@@ -72,6 +69,7 @@ public class SecurityConfig {
                                 .anyRequest().permitAll())
                 .formLogin(formLogin ->
                         formLogin.loginPage("/login").permitAll())
+                .addFilterBefore(new CsrfFilter(new HttpSessionCsrfTokenRepository()), SecurityContextHolderFilter.class)
                 .httpBasic(Customizer.withDefaults())
                 .oAuth2Login(Customizer.withDefaults())
                 .build();

@@ -24,12 +24,16 @@ public class FilterOrderRegistration {
         filterToOrder.put(AuthorizationFilter.class, order.next());
     }
 
-    public int getOrder(Filter filter) {
-        Integer order = filterToOrder.get(filter.getClass());
+    public Integer getOrder(Class<? extends Filter> clazz) {
+        Integer order = filterToOrder.get(clazz);
         if (order == null) {
             return Integer.MAX_VALUE;
         }
         return order;
+    }
+
+    public void put(final Filter filter, final int order) {
+        filterToOrder.put(filter.getClass(), order);
     }
 
     private static class Step {
