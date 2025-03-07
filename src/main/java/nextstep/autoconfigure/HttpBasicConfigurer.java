@@ -1,18 +1,24 @@
 package nextstep.autoconfigure;
 
+import nextstep.security.access.RequestMatcher;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.authentication.BasicAuthenticationFilter;
 
-public class HttpBasicConfigurer implements SecurityConfigurer {
+public class HttpBasicConfigurer extends AbstractFilterConfigurer<HttpBasicConfigurer> {
     @Override
     public void init(final HttpSecurity httpSecurity) {
 
     }
 
     @Override
-    public void configure(final HttpSecurity httpSecurity) {
+    protected void doConfigure(final HttpSecurity httpSecurity) {
         var filter = new BasicAuthenticationFilter(httpSecurity.getSharedObject(AuthenticationManager.class));
         httpSecurity.addFilter(filter);
+    }
+
+    @Override
+    protected RequestMatcher getRequestMatcher() {
+        return null;
     }
 
 }
