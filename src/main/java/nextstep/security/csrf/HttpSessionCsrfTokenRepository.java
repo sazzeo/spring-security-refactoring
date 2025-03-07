@@ -10,10 +10,8 @@ public class HttpSessionCsrfTokenRepository implements CsrfTokenRepository {
     private final String parameterName = "_csrf";
 
     private final String headerName = "X-CSRF-TOKEN";
-    ;
 
-    private final String sessionAttributeName = HttpSessionCsrfTokenRepository.class.getName()
-            .concat(".CSRF_TOKEN");
+    private final String sessionAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
 
     @Override
     public CsrfToken loadToken(HttpServletRequest request) {
