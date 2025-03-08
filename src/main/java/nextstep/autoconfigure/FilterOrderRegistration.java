@@ -7,6 +7,7 @@ import nextstep.security.authentication.BasicAuthenticationFilter;
 import nextstep.security.authentication.UsernamePasswordAuthenticationFilter;
 import nextstep.security.authorization.AuthorizationFilter;
 import nextstep.security.context.SecurityContextHolderFilter;
+import nextstep.security.csrf.CsrfFilter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class FilterOrderRegistration {
 
     public FilterOrderRegistration() {
         Step order = new Step(100, 100);
+        filterToOrder.put(CsrfFilter.class, order.next());
         filterToOrder.put(SecurityContextHolderFilter.class, order.next());
         filterToOrder.put(UsernamePasswordAuthenticationFilter.class, order.next());
         filterToOrder.put(BasicAuthenticationFilter.class, order.next());

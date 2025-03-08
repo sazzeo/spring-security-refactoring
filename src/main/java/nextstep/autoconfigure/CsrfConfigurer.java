@@ -42,8 +42,8 @@ public class CsrfConfigurer extends AbstractFilterConfigurer<CsrfConfigurer> {
         var requestMatchers = new ArrayList<RequestMatcher>(ignoringRequestUrl.stream()
                 .map(PathRequestMatcher::new)
                 .toList());
-        requestMatchers.add(new DefaultCsrfRequestMatcher());
-        return new NegatedRequestMatcher(new OrRequestMatcher(requestMatchers));
+        //TODO: 여기 수정 필요
+        return new OrRequestMatcher(List.of(new NegatedRequestMatcher(new OrRequestMatcher(requestMatchers)), new DefaultCsrfRequestMatcher()));
     }
 
     public CsrfConfigurer ignoringRequestMatchers(String... requestUrls) {

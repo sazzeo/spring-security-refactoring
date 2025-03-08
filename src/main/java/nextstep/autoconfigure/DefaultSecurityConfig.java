@@ -33,6 +33,7 @@ public class DefaultSecurityConfig {
 
     @Bean
     @Order(SecurityProperties.BASIC_AUTH_ORDER)
+    @ConditionalOnMissingBean({SecurityFilterChain.class})
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) {
         return http
                 .formLogin(formLogin ->

@@ -85,6 +85,7 @@ class FormLoginTest {
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         );
 
+
         loginResponse.andExpect(status().is3xxRedirection());
 
         ResultActions membersResponse = mockMvc.perform(get("/members")

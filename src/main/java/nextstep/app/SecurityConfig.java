@@ -72,7 +72,6 @@ public class SecurityConfig {
                                 .anyRequest().permitAll())
                 .formLogin(formLogin ->
                         formLogin.loginPage("/login").permitAll())
-                .addFilterBefore(new CsrfFilter(new HttpSessionCsrfTokenRepository()), SecurityContextHolderFilter.class)
                 .httpBasic(Customizer.withDefaults())
                 .oAuth2Login(Customizer.withDefaults())
                 .build();
