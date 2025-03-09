@@ -34,6 +34,7 @@ public class CsrfFilter extends OncePerRequestFilter {
             csrfTokenRepository.saveToken(csrfToken, request, response);
         }
         request.setAttribute(csrfToken.getParameterName(), csrfToken);
+        request.setAttribute("csrfToken", csrfToken);
 
         if (!requestMatcher.matches(request)) {
             doFilter(request, response, filterChain);

@@ -1,10 +1,7 @@
 package nextstep.autoconfigure;
 
 import jakarta.annotation.Nullable;
-import nextstep.security.access.NegatedRequestMatcher;
-import nextstep.security.access.OrRequestMatcher;
-import nextstep.security.access.PathRequestMatcher;
-import nextstep.security.access.RequestMatcher;
+import nextstep.security.access.*;
 import nextstep.security.csrf.CsrfFilter;
 import nextstep.security.csrf.CsrfTokenRepository;
 import nextstep.security.csrf.DefaultCsrfRequestMatcher;
@@ -22,7 +19,7 @@ public class CsrfConfigurer extends AbstractFilterConfigurer<CsrfConfigurer> {
     @Override
     protected void doConfigure(final HttpSecurity httpSecurity) {
         var filter = new CsrfFilter(DEFAULT_CSRF_REPOSITORY);
-        RequestMatcher ignoringRequestMatchers = createIgnoringRequestMatchers();
+        RequestMatcher ignoringRequestMatchers = createRequestMatchers();
         if (ignoringRequestMatchers != null) {
             filter.setRequestMatcher(ignoringRequestMatchers);
         }
@@ -35,15 +32,16 @@ public class CsrfConfigurer extends AbstractFilterConfigurer<CsrfConfigurer> {
     }
 
     @Nullable
-    private RequestMatcher createIgnoringRequestMatchers() {
+    private RequestMatcher createRequestMatchers() {
+        var defaultMatcher = new DefaultCsrfRequestMatcher();
         if (ignoringRequestUrl == null || ignoringRequestUrl.isEmpty()) {
-            return null;
+            return defaultMatcher;
         }
         var requestMatchers = new ArrayList<RequestMatcher>(ignoringRequestUrl.stream()
                 .map(PathRequestMatcher::new)
                 .toList());
-        //TODO: 여기 수정 필요
-        return new OrRequestMatcher(List.of(new NegatedRequestMatcher(new OrRequestMatcher(requestMatchers)), new DefaultCsrfRequestMatcher()));
+        return new AndRequestMatcher(defaultMatcher,
+                new NegatedRequestMatcher(new OrRequestMatcher(requestMatchers)));
     }
 
     public CsrfConfigurer ignoringRequestMatchers(String... requestUrls) {
