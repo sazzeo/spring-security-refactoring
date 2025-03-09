@@ -75,7 +75,7 @@ public class AuthorizeHttpRequestsConfigurer implements SecurityConfigurer {
         }
 
         public AuthorizeHttpRequestsConfigurer authenticated() {
-            configurer.addRequestMatcherEntry(AnyRequestMatcher.INSTANCE, new AuthenticatedAuthorizationManager<>());
+            configurer.addRequestMatcherEntry(requestMatcher, new AuthenticatedAuthorizationManager<>());
             return this.configurer;
         }
 
