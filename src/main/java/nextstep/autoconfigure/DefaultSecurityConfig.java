@@ -9,6 +9,7 @@ import nextstep.security.config.FilterChainProxy;
 import nextstep.security.config.SecurityFilterChain;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -39,13 +40,15 @@ public class DefaultSecurityConfig {
                 .formLogin(formLogin ->
                         formLogin.loginPage("/login").permitAll())
                 .httpBasic(Customizer.withDefaults())
+                .authorizeHttpRequests(it -> it.anyRequest().authenticated())
                 .build();
     }
 
+
     @Bean
     @ConditionalOnMissingBean({HttpSecurity.class})
-    HttpSecurity httpSecurity(ClientRegistrationRepository clientRegistrationRepository) {
-        return new HttpSecurity(authenticationManager, clientRegistrationRepository);
+    HttpSecurity httpSecurity(ClientRegistrationRepository clientRegistrationRepository, ApplicationContext applicationContext) {
+        return new HttpSecurity(authenticationManager, clientRegistrationRepository, applicationContext);
     }
 
     @Bean

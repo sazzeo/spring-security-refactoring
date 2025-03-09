@@ -6,8 +6,7 @@ import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
 import nextstep.security.context.SecurityContextHolderFilter;
-import nextstep.security.csrf.CsrfFilter;
-import org.springframework.core.Ordered;
+import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
 import java.util.*;
@@ -23,10 +22,11 @@ public class HttpSecurity {
 
     private final AuthorizeHttpRequestsConfigurer authorizeHttpRequestsConfigurer = new AuthorizeHttpRequestsConfigurer();
 
-    public HttpSecurity(final AuthenticationManager authenticationManager, final ClientRegistrationRepository clientRegistrationRepository) {
+    public HttpSecurity(final AuthenticationManager authenticationManager, final ClientRegistrationRepository clientRegistrationRepository, ApplicationContext applicationContext) {
         this.setSharedObject(AuthenticationManager.class, authenticationManager);
         this.setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
         this.setSharedObject(AuthorizeHttpRequestsConfigurer.class, authorizeHttpRequestsConfigurer);
+        this.setSharedObject(ApplicationContext.class , applicationContext);
     }
 
     public SecurityFilterChain build() {

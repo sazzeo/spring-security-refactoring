@@ -1,9 +1,14 @@
 package nextstep.autoconfigure;
 
 import jakarta.servlet.http.HttpServletRequest;
-import nextstep.security.access.*;
-import nextstep.security.access.hierarchicalroles.RoleHierarchyImpl;
+import nextstep.security.access.AnyRequestMatcher;
+import nextstep.security.access.PathRequestMatcher;
+import nextstep.security.access.RequestMatcher;
+import nextstep.security.access.RequestMatcherEntry;
+import nextstep.security.access.hierarchicalroles.NullRoleHierarchy;
+import nextstep.security.access.hierarchicalroles.RoleHierarchy;
 import nextstep.security.authorization.*;
+import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +17,23 @@ public class AuthorizeHttpRequestsConfigurer implements SecurityConfigurer {
 
     private final List<RequestMatcherEntry<AuthorizationManager<HttpServletRequest>>> requestMatcherEntries = new ArrayList<>();
 
+    private RoleHierarchy roleHierarchy = new NullRoleHierarchy();
+
+
     @Override
     public void init(final HttpSecurity httpSecurity) {
+        initRoleHierarchy(httpSecurity);
+    }
 
+    private void initRoleHierarchy(final HttpSecurity httpSecurity) {
+        var context = httpSecurity.getSharedObject(ApplicationContext.class);
+        if(context == null) {
+            return;
+        }
+        if(context.getBeanNamesForType(RoleHierarchy.class).length < 1) {
+            return;
+        }
+        this.roleHierarchy = context.getBean(RoleHierarchy.class);
     }
 
     @Override
@@ -33,7 +52,7 @@ public class AuthorizeHttpRequestsConfigurer implements SecurityConfigurer {
     }
 
     public AuthorizeBuilder anyRequest() {
-        return new AuthorizeBuilder(this, null);
+        return new AuthorizeBuilder(this, AnyRequestMatcher.INSTANCE);
     }
 
 
@@ -61,13 +80,9 @@ public class AuthorizeHttpRequestsConfigurer implements SecurityConfigurer {
         }
 
         public AuthorizeHttpRequestsConfigurer hasAuthority(String authority) {
-            //TODO: 주입받도록 변경
-            var roleHierarchy = RoleHierarchyImpl.with()
-                    .role("ADMIN").implies("USER")
-                    .build();
             configurer.addRequestMatcherEntry(requestMatcher, new AuthorityAuthorizationManager<>(
-                    roleHierarchy,
-                    "ADMIN"));
+                    configurer.roleHierarchy,
+                    authority));
             return this.configurer;
         }
 
