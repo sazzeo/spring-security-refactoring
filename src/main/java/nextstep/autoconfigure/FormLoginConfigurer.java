@@ -2,7 +2,6 @@ package nextstep.autoconfigure;
 
 import nextstep.security.access.MvcRequestMatcher;
 import nextstep.security.access.OrRequestMatcher;
-import nextstep.security.access.PathRequestMatcher;
 import nextstep.security.access.RequestMatcher;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.authentication.UsernamePasswordAuthenticationFilter;

@@ -36,7 +36,6 @@ public class CsrfConfigurer extends AbstractFilterConfigurer<CsrfConfigurer> {
         return null;
     }
 
-    @Nullable
     private RequestMatcher createRequestMatchers() {
         var defaultMatcher = new DefaultCsrfRequestMatcher();
         if (ignoringRequestUrl == null || ignoringRequestUrl.isEmpty()) {
