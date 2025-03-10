@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import nextstep.security.access.RequestMatcher;
 import nextstep.security.context.SecurityContext;
 import nextstep.security.context.SecurityContextHolder;
+import nextstep.security.context.HttpSessionSecurityContextRepository;
 import nextstep.security.context.SecurityContextRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.GenericFilterBean;
@@ -20,10 +21,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
     private RequestMatcher requestMatcher;
 
-    private final SecurityContextRepository securityContextRepository = new SecurityContextRepository();
+    private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
     private static final AuthenticationSuccessHandler successHandler = (request, response, authentication) -> response.sendRedirect("/");
     private static final AuthenticationFailureHandler failureHandler = (request, response, exception) -> response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
+
 
     protected AbstractAuthenticationProcessingFilter(String filterProcessesUrl, AuthenticationManager authenticationManager) {
         this(request -> {
@@ -88,5 +90,9 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
     public void setRequestMatcher(final RequestMatcher requestMatcher) {
         this.requestMatcher = requestMatcher;
+    }
+
+    public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+        this.securityContextRepository = securityContextRepository;
     }
 }
