@@ -6,6 +6,7 @@ import nextstep.security.access.PathRequestMatcher;
 import nextstep.security.access.RequestMatcher;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.authentication.UsernamePasswordAuthenticationFilter;
+import nextstep.security.context.SecurityContextRepository;
 import org.springframework.http.HttpMethod;
 
 import java.util.List;
@@ -27,6 +28,10 @@ public class FormLoginConfigurer extends AbstractFilterConfigurer<FormLoginConfi
     protected void doConfigure(final HttpSecurity httpSecurity) {
         var filter = new UsernamePasswordAuthenticationFilter(httpSecurity.getSharedObject(AuthenticationManager.class));
         filter.setRequestMatcher(new MvcRequestMatcher(HttpMethod.POST, loginUrl));
+        var contextRepository = httpSecurity.getSharedObject(SecurityContextRepository.class);
+        if(contextRepository != null) {
+            filter.setSecurityContextRepository(contextRepository);
+        }
         httpSecurity.addFilter(filter);
     }
 

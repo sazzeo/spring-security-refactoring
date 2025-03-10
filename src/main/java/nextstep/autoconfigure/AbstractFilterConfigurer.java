@@ -9,11 +9,6 @@ public abstract class AbstractFilterConfigurer<T extends AbstractFilterConfigure
     private boolean disable = false;
 
     @Override
-    public void init(final HttpSecurity httpSecurity) {
-
-    }
-
-    @Override
     public void configure(final HttpSecurity httpSecurity) {
         if (disable) {
             return;

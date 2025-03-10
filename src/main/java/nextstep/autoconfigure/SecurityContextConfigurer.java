@@ -1,0 +1,40 @@
+package nextstep.autoconfigure;
+
+import jakarta.annotation.Nullable;
+import nextstep.security.access.AnyRequestMatcher;
+import nextstep.security.access.RequestMatcher;
+import nextstep.security.context.SecurityContextHolderFilter;
+import nextstep.security.context.SecurityContextRepository;
+
+public class SecurityContextConfigurer extends AbstractFilterConfigurer<SecurityContextConfigurer> {
+
+    private SecurityContextRepository securityContextRepository;
+
+    @Override
+    public void init(HttpSecurity httpSecurity) {
+        if (securityContextRepository != null) {
+            httpSecurity.setSharedObject(SecurityContextRepository.class, securityContextRepository);
+        }
+    }
+
+    @Override
+    protected void doConfigure(HttpSecurity httpSecurity) {
+        var filter = new SecurityContextHolderFilter();
+        if (securityContextRepository != null) {
+            filter.setSecurityContextRepository(securityContextRepository);
+        }
+        httpSecurity.addFilter(filter);
+    }
+
+    @Nullable
+    @Override
+    protected RequestMatcher getRequestMatcher() {
+        return AnyRequestMatcher.INSTANCE;
+    }
+
+    public SecurityContextConfigurer securityContextRepository(final SecurityContextRepository securityContextRepository) {
+        this.securityContextRepository = securityContextRepository;
+        return this;
+    }
+
+}

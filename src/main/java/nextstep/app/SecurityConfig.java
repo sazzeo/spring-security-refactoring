@@ -12,6 +12,8 @@ import nextstep.security.authentication.DaoAuthenticationProvider;
 import nextstep.security.authentication.ProviderManager;
 import nextstep.security.authorization.SecuredMethodInterceptor;
 import nextstep.security.config.SecurityFilterChain;
+import nextstep.security.context.HttpSessionSecurityContextRepository;
+import nextstep.security.context.SecurityContextRepository;
 import nextstep.security.userdetails.UserDetailsService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -59,6 +61,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http
+                .securityContext(context ->
+                        context.securityContextRepository(new HttpSessionSecurityContextRepository())
+                )
                 .csrf(csrf -> {
                     csrf.ignoringRequestMatchers("/login");
                 })

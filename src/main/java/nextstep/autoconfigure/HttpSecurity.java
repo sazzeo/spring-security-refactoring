@@ -26,7 +26,7 @@ public class HttpSecurity {
         this.setSharedObject(AuthenticationManager.class, authenticationManager);
         this.setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
         this.setSharedObject(AuthorizeHttpRequestsConfigurer.class, authorizeHttpRequestsConfigurer);
-        this.setSharedObject(ApplicationContext.class , applicationContext);
+        this.setSharedObject(ApplicationContext.class, applicationContext);
     }
 
     public SecurityFilterChain build() {
@@ -75,7 +75,6 @@ public class HttpSecurity {
     }
 
     private void configure() {
-        addFilter(new SecurityContextHolderFilter());
         for (SecurityConfigurer configurer : this.configurers.values()) {
             configurer.configure(this);
         }
@@ -99,6 +98,12 @@ public class HttpSecurity {
     public <T> void setSharedObject(final Class<T> clazz, T object) {
         sharedObjects.put(clazz, object);
     }
+
+    public HttpSecurity securityContext(final Customizer<SecurityContextConfigurer> customizer) {
+        customizer.customize(getOrApply(new SecurityContextConfigurer()));
+        return this;
+    }
+
 
     public HttpSecurity csrf(final Customizer<CsrfConfigurer> customizer) {
         customizer.customize(getOrApply(new CsrfConfigurer()));

@@ -6,6 +6,7 @@ import nextstep.oauth2.web.OAuth2AuthorizedClientRepository;
 import nextstep.oauth2.web.OAuth2LoginAuthenticationFilter;
 import nextstep.security.access.RequestMatcher;
 import nextstep.security.authentication.AuthenticationManager;
+import nextstep.security.context.SecurityContextRepository;
 
 public class OAuth2LoginConfigurer extends AbstractFilterConfigurer<OAuth2LoginConfigurer> {
     @Override
@@ -20,6 +21,11 @@ public class OAuth2LoginConfigurer extends AbstractFilterConfigurer<OAuth2LoginC
         httpSecurity.addFilter(redirectFilter);
         var authenticationManager = httpSecurity.getSharedObject(AuthenticationManager.class);
         var filter = new OAuth2LoginAuthenticationFilter(repository, new OAuth2AuthorizedClientRepository(), authenticationManager);
+
+        var contextRepository = httpSecurity.getSharedObject(SecurityContextRepository.class);
+        if(contextRepository != null) {
+            filter.setSecurityContextRepository(contextRepository);
+        }
         httpSecurity.addFilter(filter);
     }
 

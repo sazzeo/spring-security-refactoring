@@ -17,6 +17,11 @@ public class CsrfConfigurer extends AbstractFilterConfigurer<CsrfConfigurer> {
     private CsrfTokenRepository DEFAULT_CSRF_REPOSITORY = new HttpSessionCsrfTokenRepository();
 
     @Override
+    public void init(HttpSecurity httpSecurity) {
+
+    }
+
+    @Override
     protected void doConfigure(final HttpSecurity httpSecurity) {
         var filter = new CsrfFilter(DEFAULT_CSRF_REPOSITORY);
         RequestMatcher ignoringRequestMatchers = createRequestMatchers();
@@ -48,5 +53,6 @@ public class CsrfConfigurer extends AbstractFilterConfigurer<CsrfConfigurer> {
         this.ignoringRequestUrl = Arrays.stream(requestUrls).toList();
         return this;
     }
+
 
 }
