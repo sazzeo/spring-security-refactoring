@@ -33,15 +33,14 @@ public class CsrfFilter extends OncePerRequestFilter {
             csrfToken = csrfTokenRepository.generateToken(request);
             csrfTokenRepository.saveToken(csrfToken, request, response);
         }
-        request.setAttribute(csrfToken.getParameterName(), csrfToken);
-        request.setAttribute("csrfToken", csrfToken);
+        request.setAttribute(CsrfToken.class.getName(), csrfToken);
 
         if (!requestMatcher.matches(request)) {
             doFilter(request, response, filterChain);
             return;
         }
 
-        var token = contractToken(request, csrfToken);
+        var token = extractToken(request, csrfToken);
         if (!csrfToken.getToken().equals(token)) {
             AccessDeniedException exception = missingToken ? new MissingCsrfTokenException("토큰이 존재하지 않습니다.") : new InvalidCsrfTokenException("유효하지 않은 토큰입니다.");
             accessDeniedHandler.handle(request, response, exception);
@@ -51,7 +50,7 @@ public class CsrfFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String contractToken(final HttpServletRequest request, final CsrfToken csrfToken) {
+    private String extractToken(final HttpServletRequest request, final CsrfToken csrfToken) {
         var actualToken = request.getHeader(csrfToken.getHeaderName());
         if (actualToken != null) {
             return actualToken;

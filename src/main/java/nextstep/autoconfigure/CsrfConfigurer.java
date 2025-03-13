@@ -1,6 +1,5 @@
 package nextstep.autoconfigure;
 
-import jakarta.annotation.Nullable;
 import nextstep.security.access.*;
 import nextstep.security.csrf.CsrfFilter;
 import nextstep.security.csrf.CsrfTokenRepository;
@@ -29,11 +28,6 @@ public class CsrfConfigurer extends AbstractFilterConfigurer<CsrfConfigurer> {
             filter.setRequestMatcher(ignoringRequestMatchers);
         }
         httpSecurity.addFilter(filter);
-    }
-
-    @Override
-    protected RequestMatcher getRequestMatcher() {
-        return null;
     }
 
     private RequestMatcher createRequestMatchers() {

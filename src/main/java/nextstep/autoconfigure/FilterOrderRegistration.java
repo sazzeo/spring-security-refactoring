@@ -35,7 +35,7 @@ public class FilterOrderRegistration {
     }
 
     public void put(final Filter filter, final int order) {
-        filterToOrder.put(filter.getClass(), order);
+        filterToOrder.putIfAbsent(filter.getClass(), order);
     }
 
     private static class Step {

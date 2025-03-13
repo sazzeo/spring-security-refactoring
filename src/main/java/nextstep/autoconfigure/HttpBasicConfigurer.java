@@ -16,9 +16,4 @@ public class HttpBasicConfigurer extends AbstractFilterConfigurer<HttpBasicConfi
         httpSecurity.addFilter(filter);
     }
 
-    @Override
-    protected RequestMatcher getRequestMatcher() {
-        return null;
-    }
-
 }

@@ -130,6 +130,10 @@ public class HttpSecurity {
         return this;
     }
 
+    public void removeConfigurers(Class<? extends SecurityConfigurer> clazz) {
+        configurers.remove(clazz);
+    }
+
     private static final class OrderedFilter implements Filter {
 
         private final Filter filter;

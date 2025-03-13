@@ -4,7 +4,6 @@ import nextstep.oauth2.registration.ClientRegistrationRepository;
 import nextstep.oauth2.web.OAuth2AuthorizationRequestRedirectFilter;
 import nextstep.oauth2.web.OAuth2AuthorizedClientRepository;
 import nextstep.oauth2.web.OAuth2LoginAuthenticationFilter;
-import nextstep.security.access.RequestMatcher;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.context.SecurityContextRepository;
 
@@ -27,11 +26,6 @@ public class OAuth2LoginConfigurer extends AbstractFilterConfigurer<OAuth2LoginC
             filter.setSecurityContextRepository(contextRepository);
         }
         httpSecurity.addFilter(filter);
-    }
-
-    @Override
-    protected RequestMatcher getRequestMatcher() {
-        return null;
     }
 
 }

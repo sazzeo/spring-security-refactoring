@@ -26,12 +26,6 @@ public class SecurityContextConfigurer extends AbstractFilterConfigurer<Security
         httpSecurity.addFilter(filter);
     }
 
-    @Nullable
-    @Override
-    protected RequestMatcher getRequestMatcher() {
-        return AnyRequestMatcher.INSTANCE;
-    }
-
     public SecurityContextConfigurer securityContextRepository(final SecurityContextRepository securityContextRepository) {
         this.securityContextRepository = securityContextRepository;
         return this;

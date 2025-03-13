@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 public class DefaultAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(final HttpServletRequest request, final HttpServletResponse response, final AccessDeniedException exception) {
+        if (response.isCommitted()) {
+            return;
+        }
         response.setStatus(HttpStatus.FORBIDDEN.value());
     }
 }
