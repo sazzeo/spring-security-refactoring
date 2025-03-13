@@ -1,6 +1,5 @@
 package nextstep.autoconfigure;
 
-import nextstep.security.access.RequestMatcher;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.authentication.BasicAuthenticationFilter;
 

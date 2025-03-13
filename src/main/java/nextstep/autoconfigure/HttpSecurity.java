@@ -5,7 +5,6 @@ import nextstep.oauth2.registration.ClientRegistrationRepository;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
-import nextstep.security.context.SecurityContextHolderFilter;
 import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
@@ -75,7 +74,8 @@ public class HttpSecurity {
     }
 
     private void configure() {
-        for (SecurityConfigurer configurer : this.configurers.values()) {
+        List<SecurityConfigurer> configurerList = new ArrayList<>(this.configurers.values());
+        for (SecurityConfigurer configurer : configurerList) {
             configurer.configure(this);
         }
     }
